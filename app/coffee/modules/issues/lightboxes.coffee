@@ -58,7 +58,7 @@ CreateIssueDirective = ($repo, $confirm, $rootscope, lightboxService, $loading, 
 
         createAttachments = (obj) ->
             promises = _.map attachmentsToAdd.toJS(), (attachment) ->
-                attachmentsService.uploadIssueAttachment(attachment.file, obj)
+                return attachmentsService.upload(attachment.file, obj.id, $scope.issue.project, 'issue')
 
             return $q.all(promises)
 
@@ -83,7 +83,7 @@ CreateIssueDirective = ($repo, $confirm, $rootscope, lightboxService, $loading, 
             promise = $repo.create("issues", $scope.issue)
 
             promise.then (data) ->
-                createAttachments(data)
+                return createAttachments(data)
 
             promise.then (data) ->
                 currentLoading.finish()

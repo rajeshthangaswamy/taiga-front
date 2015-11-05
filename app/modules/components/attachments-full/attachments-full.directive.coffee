@@ -14,31 +14,29 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: lightbox-factory.service.coffee
+# File: attchments-full.directive.coffee
 ###
 
-class LightboxFactory
-    @.$inject = ["$rootScope", "$compile"]
-    constructor: (@rootScope, @compile) ->
+bindOnce = @.taiga.bindOnce
 
-    create: (name, attrs, scopeAttrs) ->
-        scope = @rootScope.$new()
+AttachmentsFullDirective = () ->
+    link = (scope, el, attrs, ctrl) ->
+        bindOnce scope, 'vm.objId', (value) ->
+            ctrl.loadAttachments()
 
-        scope = _.merge(scope, scopeAttrs)
+    return {
+        scope: {},
+        bindToController: {
+            type: "@",
+            objId: "="
+            projectId: "="
+        },
+        controller: "AttachmentsFull",
+        controllerAs: "vm",
+        templateUrl: "components/attachments-full/attachments-full.html",
+        link: link
+    }
 
-        elm = $("<div>")
-            .attr(name, true)
-            .attr("tg-bind-scope", true)
+AttachmentsFullDirective.$inject = []
 
-        if attrs
-            elm.attr(attrs)
-
-        elm.addClass("remove-on-close")
-
-        html = @compile(elm)(scope)
-
-        $(document.body).append(html)
-
-        return
-
-angular.module("taigaCommon").service("tgLightboxFactory", LightboxFactory)
+angular.module("taigaComponents").directive("tgAttachmentsFull", AttachmentsFullDirective)

@@ -14,25 +14,15 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: attchments.controller.coffee
+# File: attchments-simple.controller.coffee
 ###
 
-class AttachmentsController
+class AttachmentsSimpleController
     @.$inject = [
         "tgAttachmentsService"
     ]
 
     constructor: (@attachmentsService) ->
-        @.deprecatedsVisible = false
-        @.maxFileSize = @attachmentsService.maxFileSize
-        @.maxFileSizeFormated = @attachmentsService.maxFileSizeFormated
-
-    generate: () ->
-        @.deprecatedsCount = @.attachments.count (it) -> it.get('is_deprecated')
-
-    toggleDeprecatedsVisible: () ->
-        @.deprecatedsVisible = !@.deprecatedsVisible
-        @.generate()
 
     addAttachment: (file) ->
         attachment = Immutable.fromJS({
@@ -44,8 +34,7 @@ class AttachmentsController
         if @attachmentsService.validate(file)
             @.attachments = @.attachments.push(attachment)
 
-            if @.onAdd
-                @.onAdd({attachment: attachment})
+            @.onAdd({attachment: attachment}) if @.onAdd
 
     addAttachments: (files) ->
         _.forEach files, @.addAttachment.bind(this)
@@ -53,22 +42,6 @@ class AttachmentsController
     deleteAttachment: (toDeleteAttachment) ->
         @.attachments = @.attachments.filter (attachment) -> attachment != toDeleteAttachment
 
-        if @.onDelete
-            @.onDelete({attachment: toDeleteAttachment})
+        @.onDelete({attachment: toDeleteAttachment}) if @.onDelete
 
-    reorderAttachment: (attachment, newIndex) ->
-        oldIndex = @.attachments.findIndex (it) -> it == attachment
-        return if oldIndex == newIndex
-
-        @.attachments = @.attachments.remove(oldIndex)
-        @.attachments = @.attachments.splice(newIndex, 0, attachment)
-
-        @.attachments = @.attachments.map (x, i) -> x.set('order', i + 1)
-
-    updateAttachment: (toUpdateAttachment) ->
-        index = @.attachments.findIndex (attachment) ->
-            return attachment.get('id') == toUpdateAttachment.get('id')
-
-        @.attachments = @.attachments.update index, () -> toUpdateAttachment
-
-angular.module("taigaComponents").controller("Attachments", AttachmentsController)
+angular.module("taigaComponents").controller("AttachmentsSimple", AttachmentsSimpleController)

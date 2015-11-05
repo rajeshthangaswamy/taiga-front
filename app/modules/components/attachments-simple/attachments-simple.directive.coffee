@@ -14,31 +14,25 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: lightbox-factory.service.coffee
+# File: attchments-simple.directive.coffee
 ###
 
-class LightboxFactory
-    @.$inject = ["$rootScope", "$compile"]
-    constructor: (@rootScope, @compile) ->
+AttachmentsSimpleDirective = () ->
+    link = (scope, el, attrs, ctrl) ->
 
-    create: (name, attrs, scopeAttrs) ->
-        scope = @rootScope.$new()
+    return {
+        scope: {},
+        bindToController: {
+            attachments: "=",
+            onAdd: "&",
+            onDelete: "&"
+        },
+        controller: "AttachmentsSimple",
+        controllerAs: "vm",
+        templateUrl: "components/attachments-simple/attachments-simple.html",
+        link: link
+    }
 
-        scope = _.merge(scope, scopeAttrs)
+AttachmentsSimpleDirective.$inject = []
 
-        elm = $("<div>")
-            .attr(name, true)
-            .attr("tg-bind-scope", true)
-
-        if attrs
-            elm.attr(attrs)
-
-        elm.addClass("remove-on-close")
-
-        html = @compile(elm)(scope)
-
-        $(document.body).append(html)
-
-        return
-
-angular.module("taigaCommon").service("tgLightboxFactory", LightboxFactory)
+angular.module("taigaComponents").directive("tgAttachmentsSimple", AttachmentsSimpleDirective)

@@ -6,7 +6,8 @@ AttachmentDirective = () ->
         bindToController: {
             attachment: "=",
             onDelete: "&",
-            onUpdate: "&"
+            onUpdate: "&",
+            type: "="
         },
         controller: "Attachment",
         controllerAs: "vm",
@@ -16,4 +17,4 @@ AttachmentDirective = () ->
 
 AttachmentDirective.$inject = []
 
-angular.module("taigaComponents").directive("tgAttachment2", AttachmentDirective)
+angular.module("taigaComponents").directive("tgAttachment", AttachmentDirective)

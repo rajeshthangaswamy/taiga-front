@@ -1,13 +1,17 @@
-AttachmentLinkDirective = ($rootScope, $parse) ->
+AttachmentLinkDirective = ($parse, lightboxFactory) ->
     link = (scope, el, attrs) ->
         attachment = $parse(attrs.tgAttachmentLink)(scope)
 
         el.on "click", (event) ->
-            if taiga.isImage(attachment.get('name'))
+            if taiga.isImage(attachment.getIn(['file', 'name']))
                 event.preventDefault()
 
                 scope.$apply ->
-                    $rootScope.$broadcast("attachment:preview", attachment)
+                    lightboxFactory.create('tg-lb-attachment-preview', {
+                        class: 'lightbox lightbox-block'
+                    }, {
+                        file: attachment.get('file')
+                    })
 
         scope.$on "$destroy", -> el.off()
     return {
@@ -15,8 +19,8 @@ AttachmentLinkDirective = ($rootScope, $parse) ->
     }
 
 AttachmentLinkDirective.$inject = [
-    "$rootScope",
-    "$parse"
+    "$parse",
+    "tgLightboxFactory"
 ]
 
 angular.module("taigaComponents").directive("tgAttachmentLink", AttachmentLinkDirective)

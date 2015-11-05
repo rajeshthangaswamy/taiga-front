@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: attchment.controller.spec.coffee
+# File: attchment.controller.coffee
 ###
 
 class AttachmentController
@@ -23,30 +23,37 @@ class AttachmentController
         '$translate'
     ]
 
-    editable: false
-
     constructor: (@attachmentsService, @translate) ->
         @.form = {}
-        @.form.description = @.attachment.get('description')
-        @.form.is_deprecated = @.attachment.get('is_deprecated')
+        @.form.description = @.attachment.getIn(['file', 'description'])
+        @.form.is_deprecated = @.attachment.get(['file', 'is_deprecated'])
+
+        @.loading = false
 
         @.title = @translate.instant("ATTACHMENT.TITLE", {
-                            fileName: @.attachment.get('name'),
-                            date: moment(@.attachment.get('created_date')).format(@translate.instant("ATTACHMENT.DATE"))
-                        })
+            fileName: @.attachment.get('name'),
+            date: moment(@.attachment.get('created_date')).format(@translate.instant("ATTACHMENT.DATE"))
+        })
 
     editMode: (mode) ->
-        @.editable = mode
+        @.attachment = @.attachment.set('editable', mode)
 
     delete: () ->
-        @.onDelete({attachment: @.attachment}) if @.onDelete
+        @.onDelete({attachment: @.attachment})
 
     save: () ->
-        @.editable = false
+        @.attachment = @.attachment.set('loading', true)
 
-        @.attachment = @.attachment.set('description', @.form.description)
-        @.attachment = @.attachment.set('is_deprecated', @.form.is_deprecated)
+        attachment = @.attachment.merge({
+            editable: false,
+            loading: false
+        })
 
-        @.onUpdate({attachment: @.attachment}) if @.onUpdate
+        attachment = attachment.mergeIn(['file'], {
+            description: @.form.description,
+            is_deprecated: !!@.form.is_deprecated
+        })
+
+        @.onUpdate({attachment: attachment})
 
 angular.module('taigaComponents').controller('Attachment', AttachmentController)

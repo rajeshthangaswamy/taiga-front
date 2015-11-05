@@ -5,11 +5,10 @@ class AttachmentsService
         "$tgConfirm",
         "$tgConfig",
         "$translate",
-        "$q",
-        "$tgResources"
+        "tgResources"
     ]
 
-    constructor: (@confirm, @config, @translate, @q, @rs) ->
+    constructor: (@confirm, @config, @translate, @rs) ->
         @.maxFileSize = @.getMaxFileSize()
 
         if @.maxFileSize
@@ -25,6 +24,7 @@ class AttachmentsService
         @confirm.notify("error", message)
 
     validate: (file) ->
+        return true
         if @.maxFileSize && file.size > @.maxFileSize
             @.sizeError(file)
 
@@ -35,29 +35,35 @@ class AttachmentsService
     getMaxFileSize: () ->
         return @config.get("maxUploadFileSize", null)
 
-    delete: (attachment, type) ->
-        return @rs.attachments.delete("attachments/" + type, attachment)
+    list: (type, objId, projectId) ->
+        return @rs.attachments.list(type, objId, projectId).then (attachments) =>
+            return attachments.sortBy (attachment) => attachment.get('order')
 
-    upload: (attachment, obj, type) ->
-        promise = @rs.attachments.create("attachments/" + type, obj.project, obj.id, attachment)
+    delete: (type, id) ->
+        return @rs.attachments.delete(type, id)
 
-        promise.then null, (data) =>
-            if data.status == 413
-                @.sizeError(attachment)
+    saveError: (file, data) ->
+        message = ""
 
-                message = @translate.instant("ATTACHMENT.ERROR_UPLOAD_ATTACHMENT", {
-                            fileName: attachment.name, errorMessage: data.data._error_message})
+        if file
+            message = @translate.instant("ATTACHMENT.ERROR_UPLOAD_ATTACHMENT", {
+                        fileName: file.name, errorMessage: data.data._error_message
+                      })
 
-                @confirm.notify("error", message)
+        @confirm.notify("error", message)
 
-                return @q.reject(data)
+    upload: (file, objId, projectId, type) ->
+        promise = @rs.attachments.create(type, projectId, objId, file)
+
+        promise.then null, @.saveError.bind(this, file)
 
         return promise
 
-    uploadUSAttachment: (attachment, obj) ->
-        return @.upload(attachment, obj, 'us')
+    patch: (id, type, patch) ->
+        promise = @rs.attachments.patch(type, id, patch)
 
-    uploadIssueAttachment: (attachment, obj) ->
-        return @.upload(attachment, obj, 'issue')
+        promise.then null, @.saveError.bind(this, null)
+
+        return promise
 
 angular.module("taigaCommon").service("tgAttachmentsService", AttachmentsService)

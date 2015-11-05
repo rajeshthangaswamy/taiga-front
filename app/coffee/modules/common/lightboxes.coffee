@@ -344,13 +344,13 @@ CreateEditUserstoryDirective = ($repo, $model, $rs, $rootScope, lightboxService,
 
         createAttachments = (obj) ->
             promises = _.map attachmentsToAdd.toJS(), (attachment) ->
-                attachmentsService.uploadUSAttachment(attachment.file, obj)
+                attachmentsService.upload(attachment.file, obj.id, $scope.us.project, 'us')
 
             return $q.all(promises)
 
         deleteAttachments = (obj) ->
             promises = _.map attachmentsToDelete.toJS(), (attachment) ->
-                attachmentsService.delete(attachment, "us")
+                return attachmentsService.delete("us", attachment.id)
 
             return $q.all(promises)
 
@@ -674,30 +674,14 @@ module.directive("tgLbWatchers", ["$tgRepo", "lightboxService", "lightboxKeyboar
 ## Attachment Preview Lighbox
 #############################################################################
 
-AttachmentPreviewLightboxDirective = ($repo, lightboxService, lightboxKeyboardNavigationService, $template, $compile) ->
+AttachmentPreviewLightboxDirective = (lightboxService, $template, $compile) ->
     link = ($scope, $el, attrs) ->
-        template = $template.get("common/lightbox/lightbox-attachment-preview.html", true)
-
-        $scope.$on "attachment:preview", (event, attachment) ->
-            lightboxService.open($el)
-            render(attachment)
-
-        $scope.$on "$destroy", ->
-            $el.off()
-
-        render = (attachment) ->
-            ctx = {
-                url: attachment.url,
-                title: attachment.description,
-                name: attachment.name
-            }
-
-            html = template(ctx)
-            html = $compile(html)($scope)
-            $el.html(html)
+        lightboxService.open($el)
 
     return {
-        link: link
+        templateUrl: 'common/lightbox/lightbox-attachment-preview.html',
+        link: link,
+        scope: true
     }
 
-module.directive("tgLbAttachmentPreview", ["$tgRepo", "lightboxService", "lightboxKeyboardNavigationService", "$tgTemplate", "$compile", AttachmentPreviewLightboxDirective])
+module.directive("tgLbAttachmentPreview", ["lightboxService", "$tgTemplate", "$compile", AttachmentPreviewLightboxDirective])
