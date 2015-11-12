@@ -507,7 +507,7 @@ configure = ($routeProvider, $locationProvider, $httpProvider, $provide, $tgEven
 
     $translateProvider
         .useStaticFilesLoader({
-            prefix: "/locales/locale-",
+            prefix: "/" + window._version + "/locales/locale-",
             suffix: ".json"
         })
         .useSanitizeValueStrategy('escapeParameters')
