@@ -81,6 +81,8 @@ BacklogFiltersDirective = ($log, $location, $templates) ->
             html = template({filters:filters})
             $el.find(".filter-list").html(html)
 
+#onclick on tags or status, gives the subitem
+
         toggleFilterSelection = (type, id) ->
             filters = $scope.filters[type]
             filter = _.find(filters, {id: taiga.toString(id)})
@@ -95,6 +97,8 @@ BacklogFiltersDirective = ($log, $location, $templates) ->
                     $ctrl.unselectFilter(type, id)
 
             renderSelectedFilters(selectedFilters)
+
+#tags or status type is selected here_Rajesh
 
             currentFiltersType = $el.find("h2 a.subfilter span.title").prop('data-type')
             if type == currentFiltersType
