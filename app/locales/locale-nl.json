@@ -1004,7 +1004,9 @@
             "HIDE": "Filters verbergen",
             "SHOW": "Toon filters",
             "FILTER_CATEGORY_STATUS": "Status",
-            "FILTER_CATEGORY_TAGS": "Tags"
+            "FILTER_CATEGORY_TAGS": "Tags",
+            "FILTER_CATEGORY_CLIENT_REQUIREMENTS": " ",
+            "FILTER_CATEGORY_TEAM_REQUIREMENTS": " "
         },
         "SPRINTS": {
             "TITLE": "SPRINTS",

@@ -71,6 +71,7 @@ unslugify = (data) ->
 
 toggleText = (element, texts) ->
     nextTextPosition = element.data('nextTextPosition')
+    alert(nextTextPosition.toSource())
     nextTextPosition = 0 if not nextTextPosition? or nextTextPosition >= texts.length
     text = texts[nextTextPosition]
     element.data('nextTextPosition', nextTextPosition + 1)

@@ -536,7 +536,63 @@ describe('backlog', function() {
 
             expect(newUsCount).to.be.equal(usCount);
         });
+        //Added by Rajesh -filter by requirements
+        it('filter by team_requirement', async function() {
+            let usCount = await backlogHelper.userStories().count();
 
+            let htmlChanges = await utils.common.outerHtmlChanges('.backlog-table-body');
+
+            $$('.filters-reqs a').first().click();
+            $$('.filter-list a').first().click();
+
+            await htmlChanges();
+
+            let newUsCount = await backlogHelper.userStories().count();
+
+            expect(newUsCount).to.be.below(usCount);
+
+            //remove status
+            htmlChanges = await utils.common.outerHtmlChanges('.backlog-table-body');
+
+            $$('.filters-applied a').first().click();
+
+            await htmlChanges();
+
+            newUsCount = await backlogHelper.userStories().count();
+
+            expect(newUsCount).to.be.equal(usCount);
+
+            backlogHelper.goBackFilters();
+        });
+
+        it('filter by client_requirement', async function() {
+            let usCount = await backlogHelper.userStories().count();
+
+            let htmlChanges = await utils.common.outerHtmlChanges('.backlog-table-body');
+
+            $$('.filters-reqs a').first().click();
+            $$('.filter-list a').first().click();
+
+            await htmlChanges();
+
+            let newUsCount = await backlogHelper.userStories().count();
+
+            expect(newUsCount).to.be.below(usCount);
+
+            //remove status
+            htmlChanges = await utils.common.outerHtmlChanges('.backlog-table-body');
+
+            $$('.filters-applied a').first().click();
+
+            await htmlChanges();
+
+            newUsCount = await backlogHelper.userStories().count();
+
+            expect(newUsCount).to.be.equal(usCount);
+
+            backlogHelper.goBackFilters();
+        });
+        //up to this
         it('trying drag with filters open', async function() {
             let dragableElements =  backlogHelper.userStories();
             let dragElement = dragableElements.get(5);

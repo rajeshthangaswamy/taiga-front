@@ -1007,7 +1007,9 @@
             "HIDE": "Hide Filters",
             "SHOW": "Show Filters",
             "FILTER_CATEGORY_STATUS": "Status",
-            "FILTER_CATEGORY_TAGS": "Tags"
+            "FILTER_CATEGORY_TAGS": "Tags",
+            "FILTER_CATEGORY_CLIENT_REQUIREMENT": "Client Requirement",
+            "FILTER_CATEGORY_TEAM_REQUIREMENT": "Team Requirement"
         },
         "SPRINTS": {
             "TITLE": "SPRINTS",

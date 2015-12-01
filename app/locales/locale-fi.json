@@ -1004,7 +1004,9 @@
             "HIDE": "Piilota suodattimet",
             "SHOW": "Näytä suodattimet",
             "FILTER_CATEGORY_STATUS": "Tila",
-            "FILTER_CATEGORY_TAGS": "Avainsanat"
+            "FILTER_CATEGORY_TAGS": "Avainsanat",
+            "FILTER_CATEGORY_CLIENT_REQUIREMENTS": " ",
+            "FILTER_CATEGORY_TEAM_REQUIREMENTS": " "
         },
         "SPRINTS": {
             "TITLE": "KIERROKSET",

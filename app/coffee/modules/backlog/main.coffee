@@ -203,10 +203,12 @@ class BacklogController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.F
     resetFilters: ->
         selectedTags = _.filter(@scope.filters.tags, "selected")
         selectedStatuses = _.filter(@scope.filters.status, "selected")
+        selectedClientRequirement = _.filter(@scope.filters.client_requirement, "selected")
+        selectedTeamRequirement = _.filter(@scope.filters.team_requirement, "selected")
 
         @scope.filtersQ = ""
 
-        _.each [selectedTags, selectedStatuses], (filterGrp) =>
+        _.each [selectedTags, selectedStatuses, selectedClientRequirement, selectedTeamRequirement], (filterGrp) =>
             _.each filterGrp, (item) =>
                 filters = @scope.filters[item.type]
                 filter = _.find(filters, {id: taiga.toString(item.id)})
@@ -455,7 +457,7 @@ class BacklogController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.F
                 @searchdata[name][val] = true
 
     getUrlFilters: ->
-        return _.pick(@location.search(), "status", "tags", "q")
+        return _.pick(@location.search(), "status", "tags","client_requirement","team_requirement","q")
 
     generateFilters: ->
         urlfilters = @.getUrlFilters()
@@ -465,6 +467,8 @@ class BacklogController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.F
         loadFilters.project = @scope.projectId
         loadFilters.tags = urlfilters.tags
         loadFilters.status = urlfilters.status
+        loadFilters.client_requirement = urlfilters.client_requirement
+        loadFilters.team_requirement = urlfilters.team_requirement
         loadFilters.q = urlfilters.q
         loadFilters.milestone = 'null'
 
@@ -479,27 +483,45 @@ class BacklogController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.F
                     t.id = t.name
                     t.type = 'tags'
                     return t
+            clientRequirementFilterFormat = (client_requirement) =>
+                return _.map client_requirement, (t) ->
+                    t.id = t.client_requirement
+                    t.type = 'client_requirement'
+                    return t
+            teamRequirementFilterFormat = (team_requirement) =>
+                return _.map team_requirement, (t) ->
+                    t.id = t.team_requirement
+                    t.type = 'team_requirement'
+                    return t
 
             # Build filters data structure
             @scope.filters.status = choicesFiltersFormat(data.statuses, "status", @scope.usStatusById)
             @scope.filters.tags = tagsFilterFormat(data.tags)
-
+            @scope.filters.client_requirement = clientRequirementFilterFormat(data.client_requirement)
+            @scope.filters.team_requirement = teamRequirementFilterFormat(data.team_requirement)
             selectedTags = _.filter(@scope.filters.tags, "selected")
             selectedTags = _.map(selectedTags, "id")
 
             selectedStatuses = _.filter(@scope.filters.status, "selected")
             selectedStatuses = _.map(selectedStatuses, "id")
 
+            selectedClientRequirement = _.filter(@scope.filters.client_requirement, "selected")
+            selectedClientRequirement = _.map(selectedClientRequirement, true)
+ 	
+            selectedTeamRequirement = _.filter(@scope.filters.team_requirement, "selected")
+            selectedTeamRequirement = _.map(selectedTeamRequirement, true)
             @.markSelectedFilters(@scope.filters, urlfilters)
 
             #store query params
             @rs.userstories.storeQueryParams(@scope.projectId, {
                 "status": selectedStatuses,
                 "tags": selectedTags,
-                "project": @scope.projectId
+                "client_requirement": selectedClientRequirement,
+                "team_requirement": selectedTeamRequirement,
+                "project": @scope.projectId,
                 "milestone": null
             })
-
+    
     markSelectedFilters: (filters, urlfilters) ->
         # Build selected filters (from url) fast lookup data structure
         searchdata = {}
@@ -713,6 +735,8 @@ BacklogDirective = ($repo, $rootscope, $translate) ->
             text = $translate.instant("BACKLOG.TAGS.SHOW")
             elm.text(text)
 
+    #here is the action to toggle the screen
+
     showHideFilter = ($scope, $el, $ctrl) ->
         sidebar = $el.find("sidebar.filters-bar")
         sidebar.one "transitionend", () ->
@@ -727,9 +751,10 @@ BacklogDirective = ($repo, $rootscope, $translate) ->
 
         hideText = $translate.instant("BACKLOG.FILTERS.HIDE")
         showText = $translate.instant("BACKLOG.FILTERS.SHOW")
-
+        txt=target.find(".text")
+        #alert(txt.toSource())
         toggleText(target.find(".text"), [hideText, showText])
-
+        
         if !sidebar.hasClass("active")
             $ctrl.resetFilters()
 
@@ -756,6 +781,8 @@ BacklogDirective = ($repo, $rootscope, $translate) ->
         filters = $ctrl.getUrlFilters()
         if filters.status ||
            filters.tags ||
+           filters.client_requirement ||
+           filters.team_requirement ||
            filters.q
             showHideFilter($scope, $el, $ctrl)
 

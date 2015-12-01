@@ -44,29 +44,32 @@ BacklogFiltersDirective = ($q, $log, $location, $templates) ->
 
         $ctrl = $el.closest(".wrapper").controller()
         selectedFilters = []
-
+        
         showFilters = (title, type) ->
             $el.find(".filters-cats").hide()
+            $el.find(".filters-reqs").hide()
             $el.find(".filter-list").removeClass("hidden")
             $el.find("h2.breadcrumb").removeClass("hidden")
             $el.find("h2 a.subfilter span.title").html(title)
             $el.find("h2 a.subfilter span.title").prop("data-type", type)
-
+            
             currentFiltersType = getFiltersType()
-
+            #alert(currentFiltersType.toSource())
         showCategories = ->
             $el.find(".filters-cats").show()
+            $el.find(".filters-reqs").show()
             $el.find(".filter-list").addClass("hidden")
             $el.find("h2.breadcrumb").addClass("hidden")
 
         initializeSelectedFilters = () ->
             showCategories()
             selectedFilters = []
-
+            #alert($scope.filters.toSource())
             for name, values of $scope.filters
+                
                 for val in values
                     selectedFilters.push(val) if val.selected
-
+                    
             renderSelectedFilters()
 
         renderSelectedFilters = ->
@@ -77,6 +80,7 @@ BacklogFiltersDirective = ($q, $log, $location, $templates) ->
             html = templateSelected({filters: selectedFilters})
             $el.find(".filters-applied").html(html)
 
+        #collects the tags and status-Rajesh   
         renderFilters = (filters) ->
             _.map filters, (f) =>
                 if f.color
@@ -90,18 +94,22 @@ BacklogFiltersDirective = ($q, $log, $location, $templates) ->
 
         reloadUserstories = () ->
             currentFiltersType = getFiltersType()
-
+            #alert($q.all([$ctrl.generateFilters()]).toSource())
+            
             $q.all([$ctrl.loadUserstories(), $ctrl.generateFilters()]).then () ->
                 currentFilters = $scope.filters[currentFiltersType]
+                #alert(currentFilters.toSource()) 
                 renderFilters(_.reject(currentFilters, "selected"))
 
         toggleFilterSelection = (type, id) ->
             currentFiltersType = getFiltersType()
-
+            
+            #filters = $scope.filters[currentFiltersType]
             filters = $scope.filters[type]
             filter = _.find(filters, {id: id})
+            alert(filter.toSource())
             filter.selected = (not filter.selected)
-
+            
             if filter.selected
                 selectedFilters.push(filter)
                 $scope.$apply ->
@@ -116,6 +124,23 @@ BacklogFiltersDirective = ($q, $log, $location, $templates) ->
 
             if type == currentFiltersType
                 renderFilters(_.reject(filters, "selected"))
+
+            reloadUserstories()
+
+        toggleFilterSelectionReqs = (type, id) ->
+            currentFiltersType = getFiltersType()
+            
+            #filters = $scope.filters[currentFiltersType]
+            filters = $scope.filters[type]
+            filter = _.find(filters, {type: type})
+            alert(filter.toSource())
+            filter.selected = (not filter.selected)
+            if currentFiltersType == 'client_requirement'
+                if filter == true
+                
+                    selectedFilters.push(filter)
+                    $scope.$apply ->
+                        $ctrl.selectFilter(type, true)
 
             reloadUserstories()
 
@@ -138,7 +163,7 @@ BacklogFiltersDirective = ($q, $log, $location, $templates) ->
         $scope.$on "filters:update", (ctx) ->
             $ctrl.generateFilters().then () ->
                 filters = $scope.filters[currentFiltersType]
-
+                #alert(filters.toSource()) 
                 if currentFiltersType
                     renderFilters(_.reject(filters, "selected"))
 
@@ -150,6 +175,35 @@ BacklogFiltersDirective = ($q, $log, $location, $templates) ->
 
             renderFilters(_.reject(tags, "selected"))
             showFilters(target.attr("title"), target.data('type'))
+            
+        $el.on "click", ".filters-reqs > ul > li > a", (event) ->
+            event.preventDefault()
+            target = angular.element(event.currentTarget)
+            #reqs = $scope.filters[target.data("type")]
+
+            #renderFilters(_.reject(reqs, "selected"))
+            showFilters(target.attr("title"), target.data('type')) 
+            id = target.data("id")
+            type = target.data("type")
+            #alert(type.toSource())
+            toggleFilterSelectionReqs(type, id)
+ 
+            #currentFiltersType = getFiltersType()
+            #alert(currentFiltersType.toSource())          
+            
+            #reloadUserstories()
+            #alert(rls.toSource())  
+            #if target.context.dataset.type == 'client_requirement'            
+            	#alert(selectedFilters.toSource())
+            #Set two bools; client true, team false
+	    #Re-apply filters
+            #else if target.context.dataset.type == 'team_requirement'
+                #console.log('team')
+                #alert(target.toSource())
+		# Set two bools; client false, team true
+		# Re-apply filters
+            #else
+               #console.log('something is wrong')
 
         $el.on "click", ".filters-inner > .filters-step-cat > .breadcrumb > .back", (event) ->
             event.preventDefault()
